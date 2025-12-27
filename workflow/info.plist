@@ -309,12 +309,12 @@ INSTALLATION RAPIDE
 - 4) Colle ta clé API : elle sera stockée chiffrée dans le Trousseau macOS (Keychain).
 
 UTILISATION
-- Sélectionne un texte dans n&apos;importe quelle app.
+- Sélectionne un texte dans n'importe quelle app.
 - Appuie sur le raccourci clavier du workflow.
-- Le texte corrigé est copié automatiquement dans le presse-papier et collé dans l&apos;app active.
+- Le texte corrigé est copié automatiquement dans le presse-papier et collé dans l'app active.
 
 SÉCURITÉ
-- Aucune clé API n&apos;est stockée dans Alfred ou dans le repo.
+- Aucune clé API n'est stockée dans Alfred ou dans le repo.
 - Les clés sont lues uniquement depuis le Trousseau macOS.
 - Aucun tracking, aucun log sensible, aucun stockage de ton texte.
 
@@ -374,7 +374,7 @@ CONFIGURATION AVANCÉE
 	<key>variablesdontexport</key>
 	<array/>
 	<key>version</key>
-	<string>0.11.0</string>
+	<string>0.14.0</string>
 	<key>webaddress</key>
 	<string>https://mickaellherminez.net/</string>
 </dict>

@@ -22,6 +22,13 @@ ou améliorer du texte instantanément grâce à des **IA modernes**
 - Support multi-IA interchangeable
 - Résultat copié automatiquement dans le presse-papier
 
+### 🧠 Comment fonctionne la correction
+
+- Le texte sélectionné est envoyé (par défaut) à DeepSeek avec un **prompt spécialisé** de correction.
+- L’IA corrige l’orthographe, la grammaire, la ponctuation et le style **sans changer le sens ni le ton**.
+- La langue est détectée automatiquement et la réponse est produite dans la **même langue** que le texte d’origine.
+- La sortie contient **uniquement le texte corrigé**, sans explications ni commentaires.
+
 ---
 
 ## 📦 Installation
@@ -70,10 +77,45 @@ Autres providers :
 
 ## ⚙️ Variables Alfred
 
-| Variable      | Description       | Exemple    |
-| ------------- | ----------------- | ---------- |
-| `AI_PROVIDER` | Provider IA actif | `deepseek` |
-| `DEBUG`       | Logs détaillés    | `0` ou `1` |
+### `AI_PROVIDER` : choisir le provider IA par défaut
+
+Par défaut, Syntax Polish utilise **DeepSeek**.  
+Tu peux changer de provider en définissant la variable **`AI_PROVIDER`** dans Alfred.
+
+#### Étapes
+
+1. Ouvre **Alfred → Preferences… → Workflows**.  
+2. Sélectionne le workflow **Syntax Polish**.  
+3. Clique sur le bouton **`[x] Configure Workflow…`** en haut à droite.  
+4. Va dans l’onglet **Environment Variables**.  
+5. Clique sur le bouton **`+`** en bas de la liste.  
+6. Renseigne :
+   - **Name** : `AI_PROVIDER`  
+   - **Value** : l’une des valeurs suivantes :
+
+| Provider   | Valeur `AI_PROVIDER` |
+|-----------|-----------------------|
+| DeepSeek  | `deepseek`           |
+| OpenAI    | `openai`             |
+| Anthropic | `anthropic`          |
+
+7. Clique sur **Save**.  
+
+À partir de là, toutes les corrections utiliseront ce provider par défaut (si l’implémentation existe côté code).
+
+> 💡 Remarque  
+> Tu peux enregistrer **plusieurs clés API** dans le Trousseau macOS en même temps  
+> (`syntax-polish-deepseek`, `syntax-polish-openai`, `syntax-polish-anthropic`).  
+> C’est uniquement la variable **`AI_PROVIDER`** qui détermine **quel provider est utilisé** :
+> - si `AI_PROVIDER` n’est pas définie, Syntax Polish utilise **`deepseek`** par défaut ;
+> - si tu mets `openai` ou `anthropic`, ce sera pris en compte **lorsque ces providers seront implémentés**
+>   (pour l’instant seul DeepSeek est réellement supporté).
+
+### Autres variables
+
+| Variable | Description    | Exemple |
+|----------|----------------|---------|
+| `DEBUG`  | Logs détaillés | `0` ou `1` |
 
 ---
 
