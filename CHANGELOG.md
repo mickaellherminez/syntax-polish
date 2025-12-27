@@ -2,6 +2,14 @@
 
 Le projet suit **SemVer** : `MAJOR.MINOR.PATCH`.
 
+## [0.15.0] - 2025-12-27
+
+### Added
+- Infrastructure de tests unitaires automatisés :
+  - ajout de `pytest` dans `requirements-dev.txt`,
+  - dossier `tests/` avec des tests pour `main.py`, `providers/deepseek.py` et `utils/keychain.py`,
+  - script `scripts/test.sh` pour lancer facilement la suite de tests.
+
 ## [0.14.0] - 2025-12-27
 
 ### Changed
