@@ -55,7 +55,7 @@
 	<key>createdby</key>
 	<string>Mickaël Lherminez</string>
 	<key>description</key>
-	<string></string>
+	<string>Corrige, reformule et améliore instantanément le texte sélectionné grâce à des IA modernes (DeepSeek, OpenAI, Anthropic), avec stockage sécurisé des clés API dans le Trousseau macOS.</string>
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
@@ -68,7 +68,7 @@
 				<key>alfredfiltersresults</key>
 				<false/>
 				<key>argumenttype</key>
-				<integer>0</integer>
+				<integer>2</integer>
 				<key>escaping</key>
 				<integer>1024</integer>
 				<key>keyword</key>
@@ -80,13 +80,13 @@
 				<key>queuedelaymode</key>
 				<integer>0</integer>
 				<key>runningsubtext</key>
-				<string>Configuration de Syntax Polish…</string>
+				<string>Ouverture de l’assistant de configuration Syntax Polish…</string>
 				<key>subtext</key>
-				<string>Configurer une clé API (stockage Keychain macOS)</string>
+				<string>Choisir l’IA (DeepSeek, OpenAI, Anthropic) et enregistrer la clé API dans le Trousseau macOS.</string>
 				<key>title</key>
-				<string>Syntax Polish – Configuration</string>
+				<string>Syntax Polish — Configurer une clé API</string>
 				<key>withspace</key>
-				<true/>
+				<false/>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.input.keyword</string>
@@ -103,39 +103,88 @@
 				<key>escaping</key>
 				<integer>68</integer>
 				<key>script</key>
-				<string>#!/usr/bin/env bash
-set -euo pipefail
+				<string>#!/usr/bin/env python3
+import getpass
+import os
+import subprocess
+import sys
 
-# Configuration guidée : UI macOS (osascript) -&gt; Keychain macOS (security)
-# Aucun secret n'est stocké dans Alfred (info.plist) ou dans le repo.
 
-choose_provider='choose from list {"deepseek","openai","anthropic"} with prompt "Choisis le fournisseur IA à configurer :" default items {"deepseek"}'
-provider="$(osascript -e "$choose_provider" 2&gt;/dev/null || true)"
-if [[ -z "${provider}" || "${provider}" == "false" ]]; then
-  exit 0
-fi
-provider="$(printf "%s" "$provider" | tr -d '\r')"
+def _run_osascript(script: str) -&gt; str:
+    """Exécute un script AppleScript et renvoie stdout (ou chaîne vide en cas d'annulation)."""
+    result = subprocess.run(
+        ["osascript"],
+        input=script,
+        text=True,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        return ""
+    return result.stdout.strip()
 
-api_key="$(SP_PROVIDER="$provider" osascript &lt;&lt;'APPLESCRIPT'
-set provider to (system attribute "SP_PROVIDER")
+
+def main() -&gt; int:
+    # 1) Demander le provider et la clé API via une seule séquence AppleScript
+    applescript = '''
+set provider_list to {"deepseek","openai","anthropic"}
+set chosen to choose from list provider_list with prompt "Choisis le fournisseur IA à configurer :" default items {"deepseek"}
+if chosen is false then
+  return ""
+end if
+set provider to item 1 of chosen
 display dialog "Colle ta clé API pour “" &amp; provider &amp; "” :" with title "Syntax Polish" default answer "" with hidden answer buttons {"Annuler","Enregistrer"} default button "Enregistrer"
-text returned of result
-APPLESCRIPT
- 2&gt;/dev/null || true)"
+set api_key to text returned of result
+return provider &amp; "::" &amp; api_key
+'''
 
-if [[ -z "${api_key}" ]]; then
-  exit 0
-fi
+    out = _run_osascript(applescript)
+    if not out:
+        # Utilisateur a annulé à un moment (liste ou dialog)
+        return 0
 
-service="syntax-polish-${provider}"
-user="$(id -un)"
+    if "::" not in out:
+        # Format inattendu
+        return 1
 
-if security add-generic-password -a "$user" -s "$service" -w "$api_key" -U &gt;/dev/null 2&gt;&amp;1; then
-  osascript -e "display notification \"Clé enregistrée dans le Trousseau (service : ${service}).\" with title \"Syntax Polish\""
-else
-  osascript -e "display dialog \"Impossible d’enregistrer la clé dans le Trousseau.\\n\\nService : ${service}\" with title \"Syntax Polish\" buttons {\"OK\"} default button \"OK\""
-  exit 1
-fi</string>
+    provider, api_key = out.split("::", 1)
+    provider = provider.strip().lower()
+    api_key = api_key.strip()
+
+    if not api_key:
+        # Pas de clé saisie
+        return 0
+
+    service = f"syntax-polish-{provider}"
+    user = getpass.getuser()
+
+    cmd = [
+        "security",
+        "add-generic-password",
+        "-a",
+        user,
+        "-s",
+        service,
+        "-w",
+        api_key,
+        "-U",
+    ]
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    if result.returncode == 0:
+        notify_script = f'display notification "Clé enregistrée dans le Trousseau (service : {service})." with title "Syntax Polish"'
+        _run_osascript(notify_script)
+        return 0
+
+    error_script = (
+        f'display dialog "Impossible d’enregistrer la clé dans le Trousseau.\\n\\nService : {service}" '
+        'with title "Syntax Polish" buttons {"OK"} default button "OK"'
+    )
+    _run_osascript(error_script)
+    return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())</string>
 				<key>scriptargtype</key>
 				<integer>0</integer>
 				<key>scriptfile</key>
@@ -208,12 +257,33 @@ fi</string>
 				<key>escaping</key>
 				<integer>68</integer>
 				<key>script</key>
-				<string>#!/usr/bin/env bash
-set -euo pipefail
+				<string>#!/usr/bin/env python3
+import os
+import sys
+import subprocess
 
-# Le workflow doit rester sans secret : les clés API sont lues depuis le Keychain macOS.
-# Alfred transmet le texte en arguments (selon la config de l'action Script).
-python3 "src/python/main.py" "$@"</string>
+
+def _run_workflow() -&gt; int:
+    """
+    Point d'entrée appelé par Alfred.
+
+    On exécute le vrai script Python du workflow :
+    &lt;workflow_dir&gt;/src/python/main.py
+    en lui passant les mêmes arguments que ceux reçus par Alfred.
+    """
+    workflow_dir = os.environ.get("alfred_workflow_directory") or os.getcwd()
+    main_path = os.path.join(workflow_dir, "src", "python", "main.py")
+
+    if not os.path.exists(main_path):
+        print(f"Erreur : fichier principal introuvable : {main_path}")
+        return 1
+
+    result = subprocess.run([sys.executable, main_path, *sys.argv[1:]])
+    return result.returncode
+
+
+if __name__ == "__main__":
+    raise SystemExit(_run_workflow())</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
@@ -230,7 +300,27 @@ python3 "src/python/main.py" "$@"</string>
 		</dict>
 	</array>
 	<key>readme</key>
-	<string></string>
+	<string>Syntax Polish est un workflow Alfred qui corrige, reformule et améliore ton texte en utilisant des IA modernes (DeepSeek, OpenAI, Anthropic…).
+
+INSTALLATION RAPIDE
+- 1) Installe le workflow.
+- 2) Dans la barre Alfred, tape : "sp setup".
+- 3) Choisis ton fournisseur IA (ex. DeepSeek).
+- 4) Colle ta clé API : elle sera stockée chiffrée dans le Trousseau macOS (Keychain).
+
+UTILISATION
+- Sélectionne un texte dans n&apos;importe quelle app.
+- Appuie sur le raccourci clavier du workflow.
+- Le texte corrigé est copié automatiquement dans le presse-papier et collé dans l&apos;app active.
+
+SÉCURITÉ
+- Aucune clé API n&apos;est stockée dans Alfred ou dans le repo.
+- Les clés sont lues uniquement depuis le Trousseau macOS.
+- Aucun tracking, aucun log sensible, aucun stockage de ton texte.
+
+CONFIGURATION AVANCÉE
+- Variable Alfred "AI_PROVIDER" pour choisir le provider par défaut (deepseek, openai, anthropic).
+- Voir la documentation complète sur GitHub pour les détails et mises à jour.</string>
 	<key>uidata</key>
 	<dict>
 		<key>06952588-BB53-4029-B7A2-FECE821900C8</key>
@@ -284,7 +374,7 @@ python3 "src/python/main.py" "$@"</string>
 	<key>variablesdontexport</key>
 	<array/>
 	<key>version</key>
-	<string>0.1.0</string>
+	<string>0.11.0</string>
 	<key>webaddress</key>
 	<string>https://mickaellherminez.net/</string>
 </dict>
