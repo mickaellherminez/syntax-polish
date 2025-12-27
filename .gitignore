@@ -1,0 +1,36 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+
+# Environnements virtuels
+.venv/
+venv/
+ENV/
+env/
+
+# Caches / rapports Python
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Fichiers locaux
+.env
+*.log
+
+# Build / packaging artefacts
+dist/
+*.alfredworkflow
+
+# Local workspace artefacts
+.tmp_workflow_extract/
+.tmp_scan/
+.tmp_check/
+
+# IDEs
+.idea/
+.vscode/
+
+

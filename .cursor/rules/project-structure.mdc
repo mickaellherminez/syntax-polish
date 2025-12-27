@@ -1,0 +1,12 @@
+---
+description: Project architecture rules
+---
+
+- All business logic must live in `src/python/`
+- Alfred-specific glue code must be isolated
+- Providers must be isolated in `providers/`
+- Utilities must live in `utils/`
+- Do NOT mix providers logic
+- Do NOT hardcode provider selection
+- The workflow must remain extensible without refactoring
+

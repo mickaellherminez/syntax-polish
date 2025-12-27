@@ -1,0 +1,10 @@
+---
+description: Alfred UX rules
+---
+
+- No stack trace shown to the user
+- Errors must be human-readable
+- Alfred output must be concise
+- Default behavior must be safe
+- Clipboard actions must be explicit
+

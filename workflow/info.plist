@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string></string>
+	<key>category</key>
+	<string>Productivity</string>
+	<key>connections</key>
+	<dict>
+		<key>06952588-BB53-4029-B7A2-FECE821900C8</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>5C206AA8-A627-43C6-802F-9428A6CDFAE4</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>5C206AA8-A627-43C6-802F-9428A6CDFAE4</key>
+		<array/>
+		<key>F8D64E81-19FF-4044-81F0-BA3E03A131F3</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>06952588-BB53-4029-B7A2-FECE821900C8</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>7B7C2B0D-9B02-4A1D-AE8F-922E08E9B2A6</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>5F64B9E1-9E4A-4E7F-9C9E-7F5C0D1A8B6A</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>5F64B9E1-9E4A-4E7F-9C9E-7F5C0D1A8B6A</key>
+		<array/>
+	</dict>
+	<key>createdby</key>
+	<string>Mickaël Lherminez</string>
+	<key>description</key>
+	<string></string>
+	<key>disabled</key>
+	<false/>
+	<key>name</key>
+	<string>Syntax Polish</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>escaping</key>
+				<integer>1024</integer>
+				<key>keyword</key>
+				<string>sp setup</string>
+				<key>queuedelaycustom</key>
+				<integer>0</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<false/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>runningsubtext</key>
+				<string>Configuration de Syntax Polish…</string>
+				<key>subtext</key>
+				<string>Configurer une clé API (stockage Keychain macOS)</string>
+				<key>title</key>
+				<string>Syntax Polish – Configuration</string>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.keyword</string>
+			<key>uid</key>
+			<string>7B7C2B0D-9B02-4A1D-AE8F-922E08E9B2A6</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>68</integer>
+				<key>script</key>
+				<string>#!/usr/bin/env bash
+set -euo pipefail
+
+# Configuration guidée : UI macOS (osascript) -&gt; Keychain macOS (security)
+# Aucun secret n'est stocké dans Alfred (info.plist) ou dans le repo.
+
+choose_provider='choose from list {"deepseek","openai","anthropic"} with prompt "Choisis le fournisseur IA à configurer :" default items {"deepseek"}'
+provider="$(osascript -e "$choose_provider" 2&gt;/dev/null || true)"
+if [[ -z "${provider}" || "${provider}" == "false" ]]; then
+  exit 0
+fi
+provider="$(printf "%s" "$provider" | tr -d '\r')"
+
+api_key="$(SP_PROVIDER="$provider" osascript &lt;&lt;'APPLESCRIPT'
+set provider to (system attribute "SP_PROVIDER")
+display dialog "Colle ta clé API pour “" &amp; provider &amp; "” :" with title "Syntax Polish" default answer "" with hidden answer buttons {"Annuler","Enregistrer"} default button "Enregistrer"
+text returned of result
+APPLESCRIPT
+ 2&gt;/dev/null || true)"
+
+if [[ -z "${api_key}" ]]; then
+  exit 0
+fi
+
+service="syntax-polish-${provider}"
+user="$(id -un)"
+
+if security add-generic-password -a "$user" -s "$service" -w "$api_key" -U &gt;/dev/null 2&gt;&amp;1; then
+  osascript -e "display notification \"Clé enregistrée dans le Trousseau (service : ${service}).\" with title \"Syntax Polish\""
+else
+  osascript -e "display dialog \"Impossible d’enregistrer la clé dans le Trousseau.\\n\\nService : ${service}\" with title \"Syntax Polish\" buttons {\"OK\"} default button \"OK\""
+  exit 1
+fi</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>9</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>5F64B9E1-9E4A-4E7F-9C9E-7F5C0D1A8B6A</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>action</key>
+				<integer>0</integer>
+				<key>argument</key>
+				<integer>1</integer>
+				<key>focusedappvariable</key>
+				<false/>
+				<key>focusedappvariablename</key>
+				<string></string>
+				<key>hotkey</key>
+				<integer>41</integer>
+				<key>hotmod</key>
+				<integer>1048576</integer>
+				<key>hotstring</key>
+				<string>M</string>
+				<key>leftcursor</key>
+				<false/>
+				<key>modsmode</key>
+				<integer>0</integer>
+				<key>relatedAppsMode</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.trigger.hotkey</string>
+			<key>uid</key>
+			<string>F8D64E81-19FF-4044-81F0-BA3E03A131F3</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>autopaste</key>
+				<true/>
+				<key>clipboardtext</key>
+				<string>{query}</string>
+				<key>ignoredynamicplaceholders</key>
+				<false/>
+				<key>transient</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.clipboard</string>
+			<key>uid</key>
+			<string>5C206AA8-A627-43C6-802F-9428A6CDFAE4</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>68</integer>
+				<key>script</key>
+				<string>#!/usr/bin/env bash
+set -euo pipefail
+
+# Le workflow doit rester sans secret : les clés API sont lues depuis le Keychain macOS.
+# Alfred transmet le texte en arguments (selon la config de l'action Script).
+python3 "src/python/main.py" "$@"</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>9</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>06952588-BB53-4029-B7A2-FECE821900C8</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string></string>
+	<key>uidata</key>
+	<dict>
+		<key>06952588-BB53-4029-B7A2-FECE821900C8</key>
+		<dict>
+			<key>colorindex</key>
+			<integer>5</integer>
+			<key>xpos</key>
+			<real>210.0</real>
+			<key>ypos</key>
+			<real>195.0</real>
+		</dict>
+		<key>5C206AA8-A627-43C6-802F-9428A6CDFAE4</key>
+		<dict>
+			<key>colorindex</key>
+			<integer>5</integer>
+			<key>xpos</key>
+			<real>390.0</real>
+			<key>ypos</key>
+			<real>195.0</real>
+		</dict>
+		<key>F8D64E81-19FF-4044-81F0-BA3E03A131F3</key>
+		<dict>
+			<key>colorindex</key>
+			<integer>5</integer>
+			<key>xpos</key>
+			<real>30.0</real>
+			<key>ypos</key>
+			<real>195.0</real>
+		</dict>
+		<key>7B7C2B0D-9B02-4A1D-AE8F-922E08E9B2A6</key>
+		<dict>
+			<key>colorindex</key>
+			<integer>2</integer>
+			<key>xpos</key>
+			<real>30.0</real>
+			<key>ypos</key>
+			<real>40.0</real>
+		</dict>
+		<key>5F64B9E1-9E4A-4E7F-9C9E-7F5C0D1A8B6A</key>
+		<dict>
+			<key>colorindex</key>
+			<integer>2</integer>
+			<key>xpos</key>
+			<real>210.0</real>
+			<key>ypos</key>
+			<real>40.0</real>
+		</dict>
+	</dict>
+	<key>userconfigurationconfig</key>
+	<array/>
+	<key>variablesdontexport</key>
+	<array/>
+	<key>version</key>
+	<string>0.1.0</string>
+	<key>webaddress</key>
+	<string>https://mickaellherminez.net/</string>
+</dict>
+</plist>

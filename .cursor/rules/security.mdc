@@ -1,0 +1,14 @@
+---
+description: Security rules (STRICT)
+---
+
+- NEVER hardcode API keys
+- NEVER commit secrets
+- NEVER log secrets (even in DEBUG)
+- API keys must be retrieved from macOS Keychain
+- Reject execution if key is missing
+- Network requests MUST use TLS verification
+- Timeouts are mandatory for HTTP calls
+- Sanitize all user input
+- Fail fast with user-friendly errors
+

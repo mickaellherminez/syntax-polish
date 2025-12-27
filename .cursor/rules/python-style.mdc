@@ -1,0 +1,15 @@
+---
+description: Python style and quality rules
+---
+
+- Follow **PEP 8** strictly
+- Use **Black** formatting
+- Prefer **Ruff** rules over flake8/pylint
+- Use `snake_case` for variables/functions
+- Use `PascalCase` for classes
+- Add **type hints** whenever possible
+- Functions should be short and focused
+- Public modules and functions MUST have docstrings
+- Avoid deeply nested logic
+- Prefer explicit code over clever code
+
