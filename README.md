@@ -108,8 +108,7 @@ Tu peux changer de provider en définissant la variable **`AI_PROVIDER`** dans A
 > (`syntax-polish-deepseek`, `syntax-polish-openai`, `syntax-polish-anthropic`).  
 > C’est uniquement la variable **`AI_PROVIDER`** qui détermine **quel provider est utilisé** :
 > - si `AI_PROVIDER` n’est pas définie, Syntax Polish utilise **`deepseek`** par défaut ;
-> - si tu mets `openai` ou `anthropic`, ce sera pris en compte **lorsque ces providers seront implémentés**
->   (pour l’instant seul DeepSeek est réellement supporté).
+> - si tu mets `openai` ou `anthropic`, ce sera pris en compte automatiquement une fois la clé API enregistrée.
 
 ### Autres variables
 

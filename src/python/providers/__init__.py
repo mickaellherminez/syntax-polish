@@ -1,7 +1,8 @@
 """Interfaces et registre des fournisseurs IA."""
-from typing import Mapping, Protocol, runtime_checkable
+import sys
+from typing import Protocol, runtime_checkable
 
-from . import deepseek
+from . import anthropic, deepseek, openai
 
 
 @runtime_checkable
@@ -12,8 +13,10 @@ class Provider(Protocol):
         """Envoie une requête au fournisseur et retourne la réponse brute."""
 
 
-_PROVIDERS: Mapping[str, Provider] = {
-    "deepseek": deepseek,
+_PROVIDERS = {
+    "deepseek",
+    "openai",
+    "anthropic",
 }
 
 
@@ -25,7 +28,8 @@ def get_provider(name: str) -> Provider:
         raise ValueError(
             f"Fournisseur IA inconnu : {provider}. Fournisseurs disponibles : {available}."
         )
-    return _PROVIDERS[provider]
+
+    return getattr(sys.modules[__name__], provider)
 
 
 __all__ = [
