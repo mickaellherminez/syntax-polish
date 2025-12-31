@@ -2,6 +2,10 @@
 [![Dernière release](https://img.shields.io/github/v/release/mickaellherminez/syntax-polish)](https://github.com/mickaellherminez/syntax-polish/releases/latest)
 [![Téléchargements](https://img.shields.io/github/downloads/mickaellherminez/syntax-polish/total)](https://github.com/mickaellherminez/syntax-polish/releases)
 
+<p align="center">
+  <img src="workflow/icon-better.png" alt="Syntax Polish logo" width="160">
+</p>
+
 # ✨ Syntax Polish — Alfred Workflow (Multi-AI)
 
 Syntax Polish est un **workflow Alfred pour macOS** qui permet de corriger, reformuler
