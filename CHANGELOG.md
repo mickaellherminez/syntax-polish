@@ -2,6 +2,27 @@
 
 Le projet suit **SemVer** : `MAJOR.MINOR.PATCH`.
 
+## [1.0.0] - 2025-12-31
+
+### Added
+- Architecture **multi‑providers** unifiée via `providers.get_provider` (DeepSeek / OpenAI / Anthropic).
+- Providers **OpenAI** et **Anthropic** :
+  - même prompt de correction que DeepSeek,
+  - lecture des clés API depuis le Trousseau (`syntax-polish-openai`, `syntax-polish-anthropic`),
+  - support complet de la variable `AI_PROVIDER` (`deepseek`, `openai`, `anthropic`).
+
+### Changed
+- Intégration Anthropic :
+  - passage à l’API `v1/messages` avec format `content` correct et `max_tokens` explicite,
+  - modèle configurable, par défaut `claude-opus-4-5-20251101` (ou autre modèle compatible).
+- Ajout d’un **mode debug** commun (`DEBUG=1`) pour tous les providers :
+  - logs `[DEBUG] ... raw response` en cas de succès,
+  - logs `[DEBUG] ... HTTP <code> body` en cas d’erreur HTTP,
+  - sans jamais exposer les clés API.
+- Documentation mise à jour (`README.md`) :
+  - description du support multi‑IA (DeepSeek, OpenAI, Anthropic),
+  - explication détaillée de `AI_PROVIDER` et du mode `DEBUG`.
+
 ## [0.15.0] - 2025-12-27
 
 ### Added

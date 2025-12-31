@@ -19,24 +19,25 @@ def main() -> int:
     # `python3 src/python/main.py ...`
     sys.path.insert(0, os.path.dirname(__file__))
 
+    from providers import get_provider
+
     text = _get_input_text()
     if not text:
         print("Erreur : aucun texte fourni.")
         return 1
 
-    provider = os.getenv("AI_PROVIDER", "deepseek").strip().lower()
+    provider_name = os.getenv("AI_PROVIDER", "deepseek").strip()
 
     try:
-        if provider == "deepseek":
-            from providers import deepseek
-
-            result = deepseek.send_request(text)
-        else:
-            print(f"Erreur : fournisseur IA inconnu : {provider}")
-            return 1
+        provider = get_provider(provider_name)
+        result = provider.send_request(text)
 
         print(result)
         return 0
+    except ValueError as exc:
+        # Fournisseur inconnu : message clair pour l'utilisateur.
+        print(f"Erreur : {exc}")
+        return 1
     except Exception as exc:
         # UX Alfred: pas de stack trace brute.
         message = str(exc).strip() or "Erreur inconnue."

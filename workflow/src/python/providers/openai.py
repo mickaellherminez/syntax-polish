@@ -18,9 +18,9 @@ SYSTEM_PROMPT = (
 
 def send_request(text: str) -> str:
     """
-    Envoie le texte sélectionné à DeepSeek avec un prompt de correction explicite.
+    Envoie le texte sélectionné à OpenAI avec un prompt de correction explicite.
     """
-    api_key = get_api_key("syntax-polish-deepseek")
+    api_key = get_api_key("syntax-polish-openai")
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
@@ -35,14 +35,14 @@ def send_request(text: str) -> str:
     ]
 
     payload = {
-        "model": "deepseek-chat",
+        "model": "gpt-4o-mini",
         "messages": messages,
     }
 
     data = json.dumps(payload).encode("utf-8")
 
     req = urllib.request.Request(
-        url="https://api.deepseek.com/v1/chat/completions",
+        url="https://api.openai.com/v1/chat/completions",
         data=data,
         headers={
             "Authorization": f"Bearer {api_key}",
@@ -57,14 +57,13 @@ def send_request(text: str) -> str:
         with urllib.request.urlopen(req, timeout=20) as response:
             body = response.read()
             if debug:
-                print(f"[DEBUG] DeepSeek raw response: {body[:500]!r}")
+                print(f"[DEBUG] OpenAI raw response: {body[:500]!r}")
             data = json.loads(body)
             return data["choices"][0]["message"]["content"]
     except urllib.error.HTTPError as exc:
         if debug:
             error_body = exc.read()
-            print(f"[DEBUG] DeepSeek HTTP {exc.code} body: {error_body[:500]!r}")
+            print(f"[DEBUG] OpenAI HTTP {exc.code} body: {error_body[:500]!r}")
         raise RuntimeError(f"HTTP Error {exc.code}: Bad Request") from exc
-
 
 

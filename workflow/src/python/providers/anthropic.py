@@ -18,35 +18,40 @@ SYSTEM_PROMPT = (
 
 def send_request(text: str) -> str:
     """
-    Envoie le texte sélectionné à DeepSeek avec un prompt de correction explicite.
+    Envoie le texte sélectionné à Anthropic avec un prompt de correction explicite.
     """
-    api_key = get_api_key("syntax-polish-deepseek")
-
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {
-            "role": "user",
-            "content": (
-                "Voici un texte à corriger et éventuellement légèrement améliorer. "
-                "Ne change pas le sens ni le format plus que nécessaire.\n\n"
-                f"{text}"
-            ),
-        },
-    ]
+    api_key = get_api_key("syntax-polish-anthropic")
 
     payload = {
-        "model": "deepseek-chat",
-        "messages": messages,
+        "model": "claude-opus-4-5-20251101",
+        "max_tokens": 1024,
+        "system": SYSTEM_PROMPT,
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": (
+                            "Voici un texte à corriger et éventuellement légèrement améliorer. "
+                            "Ne change pas le sens ni le format plus que nécessaire.\n\n"
+                            f"{text}"
+                        ),
+                    }
+                ],
+            }
+        ],
     }
 
     data = json.dumps(payload).encode("utf-8")
 
     req = urllib.request.Request(
-        url="https://api.deepseek.com/v1/chat/completions",
+        url="https://api.anthropic.com/v1/messages",
         data=data,
         headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
+            "x-api-key": api_key,
+            "content-type": "application/json",
+            "anthropic-version": "2023-06-01",
         },
         method="POST",
     )
@@ -57,14 +62,13 @@ def send_request(text: str) -> str:
         with urllib.request.urlopen(req, timeout=20) as response:
             body = response.read()
             if debug:
-                print(f"[DEBUG] DeepSeek raw response: {body[:500]!r}")
+                print(f"[DEBUG] Anthropic raw response: {body!r}")
             data = json.loads(body)
-            return data["choices"][0]["message"]["content"]
+            return data["content"][0]["text"]
     except urllib.error.HTTPError as exc:
         if debug:
             error_body = exc.read()
-            print(f"[DEBUG] DeepSeek HTTP {exc.code} body: {error_body[:500]!r}")
+            print(f"[DEBUG] Anthropic HTTP {exc.code} body: {error_body!r}")
         raise RuntimeError(f"HTTP Error {exc.code}: Bad Request") from exc
-
 
 

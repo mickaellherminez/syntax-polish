@@ -1,4 +1,6 @@
 import json
+import os
+import urllib.error
 import urllib.request
 
 from utils.keychain import get_api_key
@@ -37,9 +39,11 @@ def send_request(text: str) -> str:
         "messages": messages,
     }
 
+    data = json.dumps(payload).encode("utf-8")
+
     req = urllib.request.Request(
         url="https://api.openai.com/v1/chat/completions",
-        data=json.dumps(payload).encode(),
+        data=data,
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
@@ -47,6 +51,17 @@ def send_request(text: str) -> str:
         method="POST",
     )
 
-    with urllib.request.urlopen(req, timeout=20) as response:
-        data = json.loads(response.read())
-        return data["choices"][0]["message"]["content"]
+    debug = os.getenv("DEBUG", "0") == "1"
+
+    try:
+        with urllib.request.urlopen(req, timeout=20) as response:
+            body = response.read()
+            if debug:
+                print(f"[DEBUG] OpenAI raw response: {body[:500]!r}")
+            data = json.loads(body)
+            return data["choices"][0]["message"]["content"]
+    except urllib.error.HTTPError as exc:
+        if debug:
+            error_body = exc.read()
+            print(f"[DEBUG] OpenAI HTTP {exc.code} body: {error_body[:500]!r}")
+        raise RuntimeError(f"HTTP Error {exc.code}: Bad Request") from exc

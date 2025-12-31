@@ -1,4 +1,6 @@
 import json
+import os
+import urllib.error
 import urllib.request
 
 from utils.keychain import get_api_key
@@ -21,23 +23,31 @@ def send_request(text: str) -> str:
     api_key = get_api_key("syntax-polish-anthropic")
 
     payload = {
-        "model": "claude-3-5-sonnet-20240620",
+        "model": "claude-opus-4-5-20251101",
+        "max_tokens": 1024,
         "system": SYSTEM_PROMPT,
         "messages": [
             {
                 "role": "user",
-                "content": (
-                    "Voici un texte à corriger et éventuellement légèrement améliorer. "
-                    "Ne change pas le sens ni le format plus que nécessaire.\n\n"
-                    f"{text}"
-                ),
+                "content": [
+                    {
+                        "type": "text",
+                        "text": (
+                            "Voici un texte à corriger et éventuellement légèrement améliorer. "
+                            "Ne change pas le sens ni le format plus que nécessaire.\n\n"
+                            f"{text}"
+                        ),
+                    }
+                ],
             }
         ],
     }
 
+    data = json.dumps(payload).encode("utf-8")
+
     req = urllib.request.Request(
         url="https://api.anthropic.com/v1/messages",
-        data=json.dumps(payload).encode(),
+        data=data,
         headers={
             "x-api-key": api_key,
             "content-type": "application/json",
@@ -46,6 +56,17 @@ def send_request(text: str) -> str:
         method="POST",
     )
 
-    with urllib.request.urlopen(req, timeout=20) as response:
-        data = json.loads(response.read())
-        return data["content"][0]["text"]
+    debug = os.getenv("DEBUG", "0") == "1"
+
+    try:
+        with urllib.request.urlopen(req, timeout=20) as response:
+            body = response.read()
+            if debug:
+                print(f"[DEBUG] Anthropic raw response: {body!r}")
+            data = json.loads(body)
+            return data["content"][0]["text"]
+    except urllib.error.HTTPError as exc:
+        if debug:
+            error_body = exc.read()
+            print(f"[DEBUG] Anthropic HTTP {exc.code} body: {error_body!r}")
+        raise RuntimeError(f"HTTP Error {exc.code}: Bad Request") from exc
