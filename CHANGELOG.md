@@ -2,6 +2,14 @@
 
 Le projet suit **SemVer** : `MAJOR.MINOR.PATCH`.
 
+## [1.1.0] - 2026-01-01
+
+### Changed
+- Amélioration des messages d’erreur lorsque la clé API est manquante :
+  - le message indique explicitement le service Keychain concerné ;
+  - des instructions claires expliquent comment ajouter la clé via `sp setup` dans Alfred ;
+  - une commande `security add-generic-password` prête à adapter est fournie pour un ajout manuel en ligne de commande.
+
 ## [1.0.0] - 2025-12-31
 
 ### Added
