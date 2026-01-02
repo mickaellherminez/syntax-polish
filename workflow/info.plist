@@ -211,9 +211,9 @@ if __name__ == "__main__":
 				<key>focusedappvariablename</key>
 				<string></string>
 				<key>hotkey</key>
-				<integer>41</integer>
+				<integer>46</integer>
 				<key>hotmod</key>
-				<integer>1048576</integer>
+				<integer>1572864</integer>
 				<key>hotstring</key>
 				<string>M</string>
 				<key>leftcursor</key>
@@ -310,7 +310,7 @@ INSTALLATION RAPIDE
 
 UTILISATION
 - Sélectionne un texte dans n'importe quelle app.
-- Appuie sur le raccourci clavier du workflow.
+- Défini un raccourci clavier dans Alfred pour ce workflow (bloc Hotkey), puis clique dessus.
 - Le texte corrigé est copié automatiquement dans le presse-papier et collé dans l'app active.
 
 SÉCURITÉ
@@ -374,7 +374,7 @@ CONFIGURATION AVANCÉE
 	<key>variablesdontexport</key>
 	<array/>
 	<key>version</key>
-	<string>1.1.0</string>
+	<string>1.2.2</string>
 	<key>webaddress</key>
 	<string>https://mickaellherminez.net/</string>
 </dict>

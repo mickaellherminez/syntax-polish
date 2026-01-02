@@ -77,6 +77,30 @@ Autres providers :
 ✅ Les clés sont chiffrées par macOS  
 ✅ Rien n’est stocké dans le workflow ou le repo
 
+### Vérifier / supprimer une clé API existante
+
+Pour **vérifier** qu’une clé est bien présente dans le Trousseau, sans afficher la valeur de la clé :
+
+```bash
+if security find-generic-password -a "$USER" -s "syntax-polish-deepseek" >/dev/null 2>&1; then
+  echo "Clé DeepSeek trouvée dans le Trousseau (service: syntax-polish-deepseek)."
+else
+  echo "Aucune clé DeepSeek trouvée pour ce service."
+fi
+```
+
+Pour **supprimer** une clé du Trousseau :
+
+```bash
+security delete-generic-password -a "$USER" -s "syntax-polish-deepseek"
+```
+
+Adapte le service en fonction du provider :
+
+- `syntax-polish-deepseek`
+- `syntax-polish-openai`
+- `syntax-polish-anthropic`
+
 ---
 
 ## ⚙️ Variables Alfred
@@ -127,6 +151,19 @@ Tu peux changer de provider en définissant la variable **`AI_PROVIDER`** dans A
 1. Sélectionner du texte
 2. Lancer le raccourci Alfred
 3. Le texte corrigé est copié automatiquement
+
+### Raccourci clavier Alfred
+
+Par défaut, **aucun raccourci clavier n’est défini par Alfred à l’installation**.
+
+Après avoir importé le workflow, choisis ton propre raccourci (par exemple `⌘&`) :
+
+1. Ouvre **Alfred → Preferences… → Workflows**.
+2. Sélectionne le workflow **Syntax Polish**.
+3. Clique sur le bloc **Hotkey** du workflow.
+4. Appuie sur la combinaison voulue pour l’enregistrer (ex. `⌘&`).
+
+👉 Tu peux changer ce raccourci à tout moment si un autre workflow utilise déjà la même combinaison.
 
 ---
 

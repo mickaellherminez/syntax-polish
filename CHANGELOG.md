@@ -2,13 +2,32 @@
 
 Le projet suit **SemVer** : `MAJOR.MINOR.PATCH`.
 
-## [1.1.0] - 2026-01-01
+## [1.2.2] - 2026-01-02
+
+### Changed
+- Clarification UX autour du raccourci clavier Alfred :
+  - la procédure pour définir soi‑même un raccourci (bloc Hotkey dans Alfred) est détaillée pas à pas ;
+  - le readme interne du workflow (`workflow/info.plist`) est aligné pour indiquer qu’il faut choisir un raccourci après import.
+
+## [1.2.1] - 2026-01-02
+
+### Changed
+- Documentation des clés API améliorée :
+  - ajout des commandes `security find-generic-password` (sans afficher la valeur de la clé) et `security delete-generic-password` pour vérifier / supprimer une clé dans le Trousseau ;
+  - section README enrichie pour expliquer comment gérer les clés DeepSeek / OpenAI / Anthropic dans le Keychain macOS.
+
+## [1.2.0] - 2026-01-02
 
 ### Changed
 - Amélioration des messages d’erreur lorsque la clé API est manquante :
   - le message indique explicitement le service Keychain concerné ;
   - des instructions claires expliquent comment ajouter la clé via `sp setup` dans Alfred ;
   - une commande `security add-generic-password` prête à adapter est fournie pour un ajout manuel en ligne de commande.
+
+## [1.1.0] - 2026-01-01
+
+### Changed
+- Ajustements internes de préparation à la release 1.2.0 (aucun changement fonctionnel majeur documenté).
 
 ## [1.0.0] - 2025-12-31
 
