@@ -3,7 +3,7 @@
 [![Téléchargements](https://img.shields.io/github/downloads/mickaellherminez/syntax-polish/total)](https://github.com/mickaellherminez/syntax-polish/releases)
 
 <p align="center">
-  <img src="workflow/icon-better.png" alt="Syntax Polish logo" width="160">
+  <img src="workflow/icon.png" alt="Syntax Polish logo" width="160">
 </p>
 
 # ✨ Syntax Polish — Alfred Workflow (Multi-AI)
