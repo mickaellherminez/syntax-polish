@@ -5,6 +5,8 @@ import urllib.request
 
 from utils.keychain import get_api_key
 
+from ._shared import log_response_metadata, safe_get_first_item
+
 
 SYSTEM_PROMPT = (
     "Tu es un assistant spécialisé dans la correction et l'amélioration de texte. "
@@ -61,12 +63,24 @@ def send_request(text: str) -> str:
     try:
         with urllib.request.urlopen(req, timeout=20) as response:
             body = response.read()
-            if debug:
-                print(f"[DEBUG] Anthropic raw response: {body!r}")
+            log_response_metadata("Anthropic", body, debug)
             data = json.loads(body)
-            return data["content"][0]["text"]
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("Réponse Anthropic illisible (JSON invalide).") from exc
     except urllib.error.HTTPError as exc:
-        if debug:
-            error_body = exc.read()
-            print(f"[DEBUG] Anthropic HTTP {exc.code} body: {error_body!r}")
-        raise RuntimeError(f"HTTP Error {exc.code}: Bad Request") from exc
+        error_body = exc.read()
+        log_response_metadata("Anthropic HTTP error", error_body, debug)
+        raise RuntimeError(f"HTTP Error {exc.code}: requête refusée par Anthropic.") from exc
+    except (urllib.error.URLError, TimeoutError) as exc:
+        raise RuntimeError("Erreur réseau lors de l'appel Anthropic.") from exc
+
+    content = data.get("content") if isinstance(data, dict) else None
+    if not isinstance(content, list) or not content:
+        raise RuntimeError("Réponse Anthropic invalide : champ 'content' manquant.")
+
+    first_block = safe_get_first_item(content, "Réponse Anthropic vide.")
+    text = first_block.get("text") if isinstance(first_block, dict) else None
+    if not isinstance(text, str):
+        raise RuntimeError("Réponse Anthropic invalide : texte manquant.")
+
+    return text
