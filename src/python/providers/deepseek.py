@@ -5,6 +5,8 @@ import urllib.request
 
 from utils.keychain import get_api_key
 
+from ._shared import log_response_metadata, safe_get_first_item
+
 
 SYSTEM_PROMPT = (
     "Tu es un assistant spécialisé dans la correction et l'amélioration de texte. "
@@ -56,15 +58,28 @@ def send_request(text: str) -> str:
     try:
         with urllib.request.urlopen(req, timeout=20) as response:
             body = response.read()
-            if debug:
-                print(f"[DEBUG] DeepSeek raw response: {body[:500]!r}")
+            log_response_metadata("DeepSeek", body, debug)
             data = json.loads(body)
-            return data["choices"][0]["message"]["content"]
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("Réponse DeepSeek illisible (JSON invalide).") from exc
     except urllib.error.HTTPError as exc:
-        if debug:
-            error_body = exc.read()
-            print(f"[DEBUG] DeepSeek HTTP {exc.code} body: {error_body[:500]!r}")
-        raise RuntimeError(f"HTTP Error {exc.code}: Bad Request") from exc
+        error_body = exc.read()
+        log_response_metadata("DeepSeek HTTP error", error_body, debug)
+        raise RuntimeError(f"HTTP Error {exc.code}: requête refusée par DeepSeek.") from exc
+    except (urllib.error.URLError, TimeoutError) as exc:
+        raise RuntimeError("Erreur réseau lors de l'appel DeepSeek.") from exc
+
+    choices = data.get("choices") if isinstance(data, dict) else None
+    if not isinstance(choices, list) or not choices:
+        raise RuntimeError("Réponse DeepSeek invalide : champ 'choices' manquant.")
+
+    first_choice = safe_get_first_item(choices, "Réponse DeepSeek vide.")
+    message = first_choice.get("message") if isinstance(first_choice, dict) else None
+    content = message.get("content") if isinstance(message, dict) else None
+    if not isinstance(content, str):
+        raise RuntimeError("Réponse DeepSeek invalide : contenu manquant.")
+
+    return content
 
 
 
